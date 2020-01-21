@@ -1,4 +1,4 @@
-// Copyright (c) 2018 The btcsuite developers
+// Copyright (c) 2018 The DiviProject developers
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
@@ -11,15 +11,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/txscript"
-	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/btcsuite/btcwallet/waddrmgr"
-	"github.com/btcsuite/btcwallet/walletdb"
-	_ "github.com/btcsuite/btcwallet/walletdb/bdb"
-	"github.com/btcsuite/btcwallet/wtxmgr"
+	"github.com/DiviProject/divid/chaincfg"
+	"github.com/DiviProject/divid/chaincfg/chainhash"
+	"github.com/DiviProject/divid/txscript"
+	"github.com/DiviProject/divid/wire"
+	"github.com/DiviProject/diviutil/hdkeychain"
+	"github.com/DiviProject/diviwallet/waddrmgr"
+	"github.com/DiviProject/diviwallet/walletdb"
+	_ "github.com/DiviProject/diviwallet/walletdb/bdb"
+	"github.com/DiviProject/diviwallet/wtxmgr"
 )
 
 // TestTxToOutput checks that no new address is added to he database if we

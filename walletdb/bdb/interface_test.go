@@ -1,4 +1,4 @@
-// Copyright (c) 2014 The btcsuite developers
+// Copyright (c) 2014 The DiviProject developers
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
@@ -16,7 +16,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/btcsuite/btcwallet/walletdb/walletdbtest"
+	"github.com/DiviProject/diviwallet/walletdb/walletdbtest"
 )
 
 // TestInterface performs all interfaces tests for this database driver.

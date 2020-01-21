@@ -1,4 +1,4 @@
-// Copyright (c) 2014 The btcsuite developers
+// Copyright (c) 2014 The DiviProject developers
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
@@ -9,12 +9,12 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/btcsuite/btcd/btcec"
-	"github.com/btcsuite/btcd/txscript"
-	"github.com/btcsuite/btcutil"
-	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/btcsuite/btcwallet/internal/zero"
-	"github.com/btcsuite/btcwallet/walletdb"
+	"github.com/DiviProject/divid/diviec"
+	"github.com/DiviProject/divid/txscript"
+	"github.com/DiviProject/diviutil"
+	"github.com/DiviProject/diviutil/hdkeychain"
+	"github.com/DiviProject/diviwallet/internal/zero"
+	"github.com/DiviProject/diviwallet/walletdb"
 )
 
 // AddressType represents the various address types waddrmgr is currently able
@@ -57,8 +57,8 @@ type ManagedAddress interface {
 	// Account returns the account the address is associated with.
 	Account() uint32
 
-	// Address returns a btcutil.Address for the backing address.
-	Address() btcutil.Address
+	// Address returns a diviutil.Address for the backing address.
+	Address() diviutil.Address
 
 	// AddrHash returns the key or script hash related to the address
 	AddrHash() []byte
@@ -89,7 +89,7 @@ type ManagedPubKeyAddress interface {
 	ManagedAddress
 
 	// PubKey returns the public key associated with the address.
-	PubKey() *btcec.PublicKey
+	PubKey() *diviec.PublicKey
 
 	// ExportPubKey returns the public key associated with the address
 	// serialized as a hex encoded string.
@@ -98,11 +98,11 @@ type ManagedPubKeyAddress interface {
 	// PrivKey returns the private key for the address.  It can fail if the
 	// address manager is watching-only or locked, or the address does not
 	// have any keys.
-	PrivKey() (*btcec.PrivateKey, error)
+	PrivKey() (*diviec.PrivateKey, error)
 
 	// ExportPrivKey returns the private key associated with the address
 	// serialized as Wallet Import Format (WIF).
-	ExportPrivKey() (*btcutil.WIF, error)
+	ExportPrivKey() (*diviutil.WIF, error)
 
 	// DerivationInfo contains the information required to derive the key
 	// that backs the address via traditional methods from the HD root. For
@@ -126,13 +126,13 @@ type ManagedScriptAddress interface {
 type managedAddress struct {
 	manager          *ScopedKeyManager
 	derivationPath   DerivationPath
-	address          btcutil.Address
+	address          diviutil.Address
 	imported         bool
 	internal         bool
 	compressed       bool
 	used             bool
 	addrType         AddressType
-	pubKey           *btcec.PublicKey
+	pubKey           *diviec.PublicKey
 	privKeyEncrypted []byte
 	privKeyCT        []byte // non-nil if unlocked
 	privKeyMutex     sync.Mutex
@@ -192,11 +192,11 @@ func (a *managedAddress) AddrType() AddressType {
 	return a.addrType
 }
 
-// Address returns the btcutil.Address which represents the managed address.
+// Address returns the diviutil.Address which represents the managed address.
 // This will be a pay-to-pubkey-hash address.
 //
 // This is part of the ManagedAddress interface implementation.
-func (a *managedAddress) Address() btcutil.Address {
+func (a *managedAddress) Address() diviutil.Address {
 	return a.address
 }
 
@@ -207,11 +207,11 @@ func (a *managedAddress) AddrHash() []byte {
 	var hash []byte
 
 	switch n := a.address.(type) {
-	case *btcutil.AddressPubKeyHash:
+	case *diviutil.AddressPubKeyHash:
 		hash = n.Hash160()[:]
-	case *btcutil.AddressScriptHash:
+	case *diviutil.AddressScriptHash:
 		hash = n.Hash160()[:]
-	case *btcutil.AddressWitnessPubKeyHash:
+	case *diviutil.AddressWitnessPubKeyHash:
 		hash = n.Hash160()[:]
 	}
 
@@ -251,7 +251,7 @@ func (a *managedAddress) Used(ns walletdb.ReadBucket) bool {
 // PubKey returns the public key associated with the address.
 //
 // This is part of the ManagedPubKeyAddress interface implementation.
-func (a *managedAddress) PubKey() *btcec.PublicKey {
+func (a *managedAddress) PubKey() *diviec.PublicKey {
 	return a.pubKey
 }
 
@@ -276,7 +276,7 @@ func (a *managedAddress) ExportPubKey() string {
 // manager is watching-only or locked, or the address does not have any keys.
 //
 // This is part of the ManagedPubKeyAddress interface implementation.
-func (a *managedAddress) PrivKey() (*btcec.PrivateKey, error) {
+func (a *managedAddress) PrivKey() (*diviec.PrivateKey, error) {
 	// No private keys are available for a watching-only address manager.
 	if a.manager.rootManager.WatchOnly() {
 		return nil, managerError(ErrWatchingOnly, errWatchingOnly, nil)
@@ -298,7 +298,7 @@ func (a *managedAddress) PrivKey() (*btcec.PrivateKey, error) {
 		return nil, err
 	}
 
-	privKey, _ := btcec.PrivKeyFromBytes(btcec.S256(), privKeyCopy)
+	privKey, _ := diviec.PrivKeyFromBytes(diviec.S256(), privKeyCopy)
 	zero.Bytes(privKeyCopy)
 	return privKey, nil
 }
@@ -307,13 +307,13 @@ func (a *managedAddress) PrivKey() (*btcec.PrivateKey, error) {
 // Import Format (WIF).
 //
 // This is part of the ManagedPubKeyAddress interface implementation.
-func (a *managedAddress) ExportPrivKey() (*btcutil.WIF, error) {
+func (a *managedAddress) ExportPrivKey() (*diviutil.WIF, error) {
 	pk, err := a.PrivKey()
 	if err != nil {
 		return nil, err
 	}
 
-	return btcutil.NewWIF(pk, a.manager.rootManager.chainParams, a.compressed)
+	return diviutil.NewWIF(pk, a.manager.rootManager.chainParams, a.compressed)
 }
 
 // Derivationinfo contains the information required to derive the key that
@@ -341,18 +341,18 @@ func (a *managedAddress) DerivationInfo() (KeyScope, DerivationPath, bool) {
 // passed account, public key, and whether or not the public key should be
 // compressed.
 func newManagedAddressWithoutPrivKey(m *ScopedKeyManager,
-	derivationPath DerivationPath, pubKey *btcec.PublicKey, compressed bool,
+	derivationPath DerivationPath, pubKey *diviec.PublicKey, compressed bool,
 	addrType AddressType) (*managedAddress, error) {
 
 	// Create a pay-to-pubkey-hash address from the public key.
 	var pubKeyHash []byte
 	if compressed {
-		pubKeyHash = btcutil.Hash160(pubKey.SerializeCompressed())
+		pubKeyHash = diviutil.Hash160(pubKey.SerializeCompressed())
 	} else {
-		pubKeyHash = btcutil.Hash160(pubKey.SerializeUncompressed())
+		pubKeyHash = diviutil.Hash160(pubKey.SerializeUncompressed())
 	}
 
-	var address btcutil.Address
+	var address diviutil.Address
 	var err error
 
 	switch addrType {
@@ -364,7 +364,7 @@ func newManagedAddressWithoutPrivKey(m *ScopedKeyManager,
 		// and malleability fixes.
 
 		// First, we'll generate a normal p2wkh address from the pubkey hash.
-		witAddr, err := btcutil.NewAddressWitnessPubKeyHash(
+		witAddr, err := diviutil.NewAddressWitnessPubKeyHash(
 			pubKeyHash, m.rootManager.chainParams,
 		)
 		if err != nil {
@@ -382,7 +382,7 @@ func newManagedAddressWithoutPrivKey(m *ScopedKeyManager,
 		// to a p2sh address. In order to spend, we first use the
 		// witnessProgram as the sigScript, then present the proper
 		// <sig, pubkey> pair as the witness.
-		address, err = btcutil.NewAddressScriptHash(
+		address, err = diviutil.NewAddressScriptHash(
 			witnessProgram, m.rootManager.chainParams,
 		)
 		if err != nil {
@@ -390,7 +390,7 @@ func newManagedAddressWithoutPrivKey(m *ScopedKeyManager,
 		}
 
 	case PubKeyHash:
-		address, err = btcutil.NewAddressPubKeyHash(
+		address, err = diviutil.NewAddressPubKeyHash(
 			pubKeyHash, m.rootManager.chainParams,
 		)
 		if err != nil {
@@ -398,7 +398,7 @@ func newManagedAddressWithoutPrivKey(m *ScopedKeyManager,
 		}
 
 	case WitnessPubKey:
-		address, err = btcutil.NewAddressWitnessPubKeyHash(
+		address, err = diviutil.NewAddressWitnessPubKeyHash(
 			pubKeyHash, m.rootManager.chainParams,
 		)
 		if err != nil {
@@ -424,7 +424,7 @@ func newManagedAddressWithoutPrivKey(m *ScopedKeyManager,
 // private key, and whether or not the public key is compressed.  The managed
 // address will have access to the private and public keys.
 func newManagedAddress(s *ScopedKeyManager, derivationPath DerivationPath,
-	privKey *btcec.PrivateKey, compressed bool,
+	privKey *diviec.PrivateKey, compressed bool,
 	addrType AddressType) (*managedAddress, error) {
 
 	// Encrypt the private key.
@@ -440,7 +440,7 @@ func newManagedAddress(s *ScopedKeyManager, derivationPath DerivationPath,
 
 	// Leverage the code to create a managed address without a private key
 	// and then add the private key to it.
-	ecPubKey := (*btcec.PublicKey)(&privKey.PublicKey)
+	ecPubKey := (*diviec.PublicKey)(&privKey.PublicKey)
 	managedAddr, err := newManagedAddressWithoutPrivKey(
 		s, derivationPath, ecPubKey, compressed, addrType,
 	)
@@ -500,7 +500,7 @@ func newManagedAddressFromExtKey(s *ScopedKeyManager,
 type scriptAddress struct {
 	manager         *ScopedKeyManager
 	account         uint32
-	address         *btcutil.AddressScriptHash
+	address         *diviutil.AddressScriptHash
 	scriptEncrypted []byte
 	scriptCT        []byte
 	scriptMutex     sync.Mutex
@@ -560,11 +560,11 @@ func (a *scriptAddress) AddrType() AddressType {
 	return Script
 }
 
-// Address returns the btcutil.Address which represents the managed address.
+// Address returns the diviutil.Address which represents the managed address.
 // This will be a pay-to-script-hash address.
 //
 // This is part of the ManagedAddress interface implementation.
-func (a *scriptAddress) Address() btcutil.Address {
+func (a *scriptAddress) Address() diviutil.Address {
 	return a.address
 }
 
@@ -632,7 +632,7 @@ func (a *scriptAddress) Script() ([]byte, error) {
 func newScriptAddress(m *ScopedKeyManager, account uint32, scriptHash,
 	scriptEncrypted []byte) (*scriptAddress, error) {
 
-	address, err := btcutil.NewAddressScriptHashFromHash(
+	address, err := diviutil.NewAddressScriptHashFromHash(
 		scriptHash, m.rootManager.chainParams,
 	)
 	if err != nil {

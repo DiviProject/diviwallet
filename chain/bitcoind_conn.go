@@ -9,10 +9,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/rpcclient"
-	"github.com/btcsuite/btcd/wire"
+	"github.com/DiviProject/divid/chaincfg"
+	"github.com/DiviProject/divid/chaincfg/chainhash"
+	"github.com/DiviProject/divid/rpcclient"
+	"github.com/DiviProject/divid/wire"
 	"github.com/lightninglabs/gozmq"
 )
 

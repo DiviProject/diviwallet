@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2017 The btcsuite developers
+// Copyright (c) 2014-2017 The DiviProject developers
 // Copyright (c) 2015 The Decred developers
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
@@ -12,8 +12,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcwallet/walletdb"
+	"github.com/DiviProject/divid/chaincfg/chainhash"
+	"github.com/DiviProject/diviwallet/walletdb"
 )
 
 const (

@@ -1,5 +1,5 @@
 // Copyright (c) 2016 The Decred developers
-// Copyright (c) 2017 The btcsuite developers
+// Copyright (c) 2017 The DiviProject developers
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
@@ -8,9 +8,9 @@ package wallet
 import (
 	"time"
 
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcutil"
+	"github.com/DiviProject/divid/chaincfg/chainhash"
+	"github.com/DiviProject/divid/wire"
+	"github.com/DiviProject/diviutil"
 )
 
 // Note: The following common types should never reference the Wallet type.
@@ -78,10 +78,10 @@ type P2SHMultiSigOutput struct {
 	// fetching other Transactionoutput data together with the rest of the
 	// multisig info.
 	OutPoint        wire.OutPoint
-	OutputAmount    btcutil.Amount
+	OutputAmount    diviutil.Amount
 	ContainingBlock BlockIdentity
 
-	P2SHAddress  *btcutil.AddressScriptHash
+	P2SHAddress  *diviutil.AddressScriptHash
 	RedeemScript []byte
 	M, N         uint8           // M of N signatures required to redeem
 	Redeemer     *OutputRedeemer // nil unless spent

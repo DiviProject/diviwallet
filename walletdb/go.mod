@@ -1,12 +1,11 @@
-module github.com/btcsuite/btcwallet/walletdb
+module github.com/DiviProject/diviwallet/walletdb
 
-go 1.12
+go 1.13
 
 require (
-	github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f
+	github.com/DiviProject/divilog v1.0.0
 	github.com/coreos/bbolt v1.3.3
 	github.com/davecgh/go-spew v1.1.1
 	go.etcd.io/bbolt v1.3.3 // indirect
-	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
-	golang.org/x/sys v0.0.0-20190904154756-749cb33beabd // indirect
+	golang.org/x/sys v0.0.0-20200121082415-34d275377bf9 // indirect
 )

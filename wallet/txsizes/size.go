@@ -1,12 +1,12 @@
-// Copyright (c) 2016 The btcsuite developers
+// Copyright (c) 2016 The DiviProject developers
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
 package txsizes
 
 import (
-	"github.com/btcsuite/btcd/blockchain"
-	"github.com/btcsuite/btcd/wire"
+	"github.com/DiviProject/divid/blockchain"
+	"github.com/DiviProject/divid/wire"
 )
 
 // Worst case script and input/output size estimates.

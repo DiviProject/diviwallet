@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2017 The btcsuite developers
+// Copyright (c) 2015-2017 The DiviProject developers
 // Copyright (c) 2015-2016 The Decred developers
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
@@ -8,16 +8,16 @@ package wtxmgr
 import (
 	"fmt"
 
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcutil"
-	"github.com/btcsuite/btcwallet/walletdb"
+	"github.com/DiviProject/divid/chaincfg/chainhash"
+	"github.com/DiviProject/diviutil"
+	"github.com/DiviProject/diviwallet/walletdb"
 )
 
 // CreditRecord contains metadata regarding a transaction credit for a known
 // transaction.  Further details may be looked up by indexing a wire.MsgTx.TxOut
 // with the Index field.
 type CreditRecord struct {
-	Amount btcutil.Amount
+	Amount diviutil.Amount
 	Index  uint32
 	Spent  bool
 	Change bool
@@ -27,7 +27,7 @@ type CreditRecord struct {
 // transaction.  Further details may be looked up by indexing a wire.MsgTx.TxIn
 // with the Index field.
 type DebitRecord struct {
-	Amount btcutil.Amount
+	Amount diviutil.Amount
 	Index  uint32
 }
 

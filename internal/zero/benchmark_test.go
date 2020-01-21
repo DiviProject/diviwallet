@@ -1,4 +1,4 @@
-// Copyright (c) 2015 The btcsuite developers
+// Copyright (c) 2015 The DiviProject developers
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
@@ -7,7 +7,7 @@ package zero_test
 import (
 	"testing"
 
-	. "github.com/btcsuite/btcwallet/internal/zero"
+	. "github.com/DiviProject/diviwallet/internal/zero"
 )
 
 var (

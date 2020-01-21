@@ -6,21 +6,21 @@ import (
 	"sync"
 	"time"
 
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/rpcclient"
-	"github.com/btcsuite/btcd/txscript"
-	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcutil"
-	"github.com/btcsuite/btcutil/gcs"
-	"github.com/btcsuite/btcutil/gcs/builder"
-	"github.com/btcsuite/btcwallet/waddrmgr"
-	"github.com/btcsuite/btcwallet/wtxmgr"
+	"github.com/DiviProject/divid/chaincfg"
+	"github.com/DiviProject/divid/chaincfg/chainhash"
+	"github.com/DiviProject/divid/rpcclient"
+	"github.com/DiviProject/divid/txscript"
+	"github.com/DiviProject/divid/wire"
+	"github.com/DiviProject/diviutil"
+	"github.com/DiviProject/diviutil/gcs"
+	"github.com/DiviProject/diviutil/gcs/builder"
+	"github.com/DiviProject/diviwallet/waddrmgr"
+	"github.com/DiviProject/diviwallet/wtxmgr"
 	"github.com/lightninglabs/neutrino"
 	"github.com/lightninglabs/neutrino/headerfs"
 )
 
-// NeutrinoClient is an implementation of the btcwalet chain.Interface interface.
+// NeutrinoClient is an implementation of the diviwalet chain.Interface interface.
 type NeutrinoClient struct {
 	CS *neutrino.ChainService
 
@@ -107,7 +107,7 @@ func (s *NeutrinoClient) WaitForShutdown() {
 func (s *NeutrinoClient) GetBlock(hash *chainhash.Hash) (*wire.MsgBlock, error) {
 	// TODO(roasbeef): add a block cache?
 	//  * which evication strategy? depends on use case
-	//  Should the block cache be INSIDE neutrino instead of in btcwallet?
+	//  Should the block cache be INSIDE neutrino instead of in diviwallet?
 	block, err := s.CS.GetBlock(*hash)
 	if err != nil {
 		return nil, err
@@ -325,8 +325,8 @@ func (s *NeutrinoClient) pollCFilter(hash *chainhash.Hash) (*gcs.Filter, error) 
 }
 
 // Rescan replicates the RPC client's Rescan command.
-func (s *NeutrinoClient) Rescan(startHash *chainhash.Hash, addrs []btcutil.Address,
-	outPoints map[wire.OutPoint]btcutil.Address) error {
+func (s *NeutrinoClient) Rescan(startHash *chainhash.Hash, addrs []diviutil.Address,
+	outPoints map[wire.OutPoint]diviutil.Address) error {
 
 	s.clientMtx.Lock()
 	if !s.started {
@@ -430,14 +430,14 @@ func (s *NeutrinoClient) NotifyBlocks() error {
 	// start a rescan without watching any addresses.
 	if !s.scanning {
 		s.clientMtx.Unlock()
-		return s.NotifyReceived([]btcutil.Address{})
+		return s.NotifyReceived([]diviutil.Address{})
 	}
 	s.clientMtx.Unlock()
 	return nil
 }
 
 // NotifyReceived replicates the RPC client's NotifyReceived command.
-func (s *NeutrinoClient) NotifyReceived(addrs []btcutil.Address) error {
+func (s *NeutrinoClient) NotifyReceived(addrs []diviutil.Address) error {
 	s.clientMtx.Lock()
 
 	// If we have a rescan running, we just need to add the appropriate
@@ -496,7 +496,7 @@ func (s *NeutrinoClient) SetStartTime(startTime time.Time) {
 // onFilteredBlockConnected sends appropriate notifications to the notification
 // channel.
 func (s *NeutrinoClient) onFilteredBlockConnected(height int32,
-	header *wire.BlockHeader, relevantTxs []*btcutil.Tx) {
+	header *wire.BlockHeader, relevantTxs []*diviutil.Tx) {
 	ntfn := FilteredBlockConnected{
 		Block: &wtxmgr.BlockMeta{
 			Block: wtxmgr.Block{

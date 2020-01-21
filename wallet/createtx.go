@@ -1,5 +1,5 @@
-// Copyright (c) 2013-2017 The btcsuite developers
-// Copyright (c) 2015-2016 The btcsuite developers
+// Copyright (c) 2013-2017 The DiviProject developers
+// Copyright (c) 2015-2016 The DiviProject developers
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
@@ -9,14 +9,14 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/btcsuite/btcd/btcec"
-	"github.com/btcsuite/btcd/txscript"
-	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcutil"
-	"github.com/btcsuite/btcwallet/waddrmgr"
-	"github.com/btcsuite/btcwallet/wallet/txauthor"
-	"github.com/btcsuite/btcwallet/walletdb"
-	"github.com/btcsuite/btcwallet/wtxmgr"
+	"github.com/DiviProject/divid/diviec"
+	"github.com/DiviProject/divid/txscript"
+	"github.com/DiviProject/divid/wire"
+	"github.com/DiviProject/diviutil"
+	"github.com/DiviProject/diviwallet/waddrmgr"
+	"github.com/DiviProject/diviwallet/wallet/txauthor"
+	"github.com/DiviProject/diviwallet/walletdb"
+	"github.com/DiviProject/diviwallet/wtxmgr"
 )
 
 // byAmount defines the methods needed to satisify sort.Interface to
@@ -34,13 +34,13 @@ func makeInputSource(eligible []wtxmgr.Credit) txauthor.InputSource {
 
 	// Current inputs and their total value.  These are closed over by the
 	// returned input source and reused across multiple calls.
-	currentTotal := btcutil.Amount(0)
+	currentTotal := diviutil.Amount(0)
 	currentInputs := make([]*wire.TxIn, 0, len(eligible))
 	currentScripts := make([][]byte, 0, len(eligible))
-	currentInputValues := make([]btcutil.Amount, 0, len(eligible))
+	currentInputValues := make([]diviutil.Amount, 0, len(eligible))
 
-	return func(target btcutil.Amount) (btcutil.Amount, []*wire.TxIn,
-		[]btcutil.Amount, [][]byte, error) {
+	return func(target diviutil.Amount) (diviutil.Amount, []*wire.TxIn,
+		[]diviutil.Amount, [][]byte, error) {
 
 		for currentTotal < target && len(eligible) != 0 {
 			nextCredit := &eligible[0]
@@ -62,7 +62,7 @@ type secretSource struct {
 	addrmgrNs walletdb.ReadBucket
 }
 
-func (s secretSource) GetKey(addr btcutil.Address) (*btcec.PrivateKey, bool, error) {
+func (s secretSource) GetKey(addr diviutil.Address) (*diviec.PrivateKey, bool, error) {
 	ma, err := s.Address(s.addrmgrNs, addr)
 	if err != nil {
 		return nil, false, err
@@ -81,7 +81,7 @@ func (s secretSource) GetKey(addr btcutil.Address) (*btcec.PrivateKey, bool, err
 	return privKey, ma.Compressed(), nil
 }
 
-func (s secretSource) GetScript(addr btcutil.Address) ([]byte, error) {
+func (s secretSource) GetScript(addr diviutil.Address) ([]byte, error) {
 	ma, err := s.Address(s.addrmgrNs, addr)
 	if err != nil {
 		return nil, err
@@ -106,7 +106,7 @@ func (s secretSource) GetScript(addr btcutil.Address) ([]byte, error) {
 // the database. A tx created with this set to true will intentionally have no
 // input scripts added and SHOULD NOT be broadcasted.
 func (w *Wallet) txToOutputs(outputs []*wire.TxOut, account uint32,
-	minconf int32, feeSatPerKb btcutil.Amount, dryRun bool) (
+	minconf int32, feeSatPerKb diviutil.Amount, dryRun bool) (
 	tx *txauthor.AuthoredTx, err error) {
 
 	chainClient, err := w.requireChainClient()
@@ -138,7 +138,7 @@ func (w *Wallet) txToOutputs(outputs []*wire.TxOut, account uint32,
 		// Derive the change output script.  As a hack to allow
 		// spending from the imported account, change addresses are
 		// created from account 0.
-		var changeAddr btcutil.Address
+		var changeAddr diviutil.Address
 		var err error
 		if account == waddrmgr.ImportedAddrAccount {
 			changeAddr, err = w.newChangeAddress(addrmgrNs, 0)
@@ -186,7 +186,7 @@ func (w *Wallet) txToOutputs(outputs []*wire.TxOut, account uint32,
 	}
 
 	if tx.ChangeIndex >= 0 && account == waddrmgr.ImportedAddrAccount {
-		changeAmount := btcutil.Amount(tx.Tx.TxOut[tx.ChangeIndex].Value)
+		changeAmount := diviutil.Amount(tx.Tx.TxOut[tx.ChangeIndex].Value)
 		log.Warnf("Spend from imported account produced change: moving"+
 			" %v from imported account into default account.", changeAmount)
 	}
@@ -267,7 +267,7 @@ func (w *Wallet) findEligibleOutputs(dbtx walletdb.ReadTx, account uint32, minco
 // validateMsgTx verifies transaction input scripts for tx.  All previous output
 // scripts from outputs redeemed by the transaction, in the same order they are
 // spent, must be passed in the prevScripts slice.
-func validateMsgTx(tx *wire.MsgTx, prevScripts [][]byte, inputValues []btcutil.Amount) error {
+func validateMsgTx(tx *wire.MsgTx, prevScripts [][]byte, inputValues []diviutil.Amount) error {
 	hashCache := txscript.NewTxSigHashes(tx)
 	for i, prevScript := range prevScripts {
 		vm, err := txscript.NewEngine(prevScript, tx, i,

@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcutil"
-	"github.com/btcsuite/btcwallet/chain"
+	"github.com/DiviProject/divid/chaincfg"
+	"github.com/DiviProject/divid/chaincfg/chainhash"
+	"github.com/DiviProject/divid/wire"
+	"github.com/DiviProject/diviutil"
+	"github.com/DiviProject/diviwallet/chain"
 )
 
 var Block100000 = wire.MsgBlock{
@@ -273,9 +273,9 @@ func TestBlockFiltererOneInOneOut(t *testing.T) {
 
 	// Add each of their single previous outpoints to the set of watched
 	// outpoints to filter for.
-	watchedOutPoints := make(map[wire.OutPoint]btcutil.Address)
-	watchedOutPoints[firstTx.TxIn[0].PreviousOutPoint] = &btcutil.AddressWitnessPubKeyHash{}
-	watchedOutPoints[lastTx.TxIn[0].PreviousOutPoint] = &btcutil.AddressWitnessPubKeyHash{}
+	watchedOutPoints := make(map[wire.OutPoint]diviutil.Address)
+	watchedOutPoints[firstTx.TxIn[0].PreviousOutPoint] = &diviutil.AddressWitnessPubKeyHash{}
+	watchedOutPoints[lastTx.TxIn[0].PreviousOutPoint] = &diviutil.AddressWitnessPubKeyHash{}
 
 	// Construct a filter request, watching only for the outpoints above,
 	// and construct a block filterer.

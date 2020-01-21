@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2016 The btcsuite developers
+// Copyright (c) 2014-2016 The DiviProject developers
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
@@ -11,12 +11,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcutil"
-	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/btcsuite/btcwallet/internal/zero"
-	"github.com/btcsuite/btcwallet/snacl"
-	"github.com/btcsuite/btcwallet/walletdb"
+	"github.com/DiviProject/divid/chaincfg"
+	"github.com/DiviProject/diviutil"
+	"github.com/DiviProject/diviutil/hdkeychain"
+	"github.com/DiviProject/diviwallet/internal/zero"
+	"github.com/DiviProject/diviwallet/snacl"
+	"github.com/DiviProject/diviwallet/walletdb"
 )
 
 const (
@@ -616,7 +616,7 @@ func (m *Manager) NeuterRootKey(ns walletdb.ReadWriteBucket) error {
 // pay-to-pubkey-hash addresses and the script associated with
 // pay-to-script-hash addresses.
 func (m *Manager) Address(ns walletdb.ReadBucket,
-	address btcutil.Address) (ManagedAddress, error) {
+	address diviutil.Address) (ManagedAddress, error) {
 
 	m.mtx.RLock()
 	defer m.mtx.RUnlock()
@@ -639,7 +639,7 @@ func (m *Manager) Address(ns walletdb.ReadBucket,
 }
 
 // MarkUsed updates the used flag for the provided address.
-func (m *Manager) MarkUsed(ns walletdb.ReadWriteBucket, address btcutil.Address) error {
+func (m *Manager) MarkUsed(ns walletdb.ReadWriteBucket, address diviutil.Address) error {
 	m.mtx.RLock()
 	defer m.mtx.RUnlock()
 
@@ -666,7 +666,7 @@ func (m *Manager) MarkUsed(ns walletdb.ReadWriteBucket, address btcutil.Address)
 // AddrAccount returns the account to which the given address belongs. We also
 // return the scoped manager that owns the addr+account combo.
 func (m *Manager) AddrAccount(ns walletdb.ReadBucket,
-	address btcutil.Address) (*ScopedKeyManager, uint32, error) {
+	address diviutil.Address) (*ScopedKeyManager, uint32, error) {
 
 	m.mtx.RLock()
 	defer m.mtx.RUnlock()
@@ -716,7 +716,7 @@ func (m *Manager) ForEachActiveAccountAddress(ns walletdb.ReadBucket,
 
 // ForEachActiveAddress calls the given function with each active address
 // stored in the manager, breaking early on error.
-func (m *Manager) ForEachActiveAddress(ns walletdb.ReadBucket, fn func(addr btcutil.Address) error) error {
+func (m *Manager) ForEachActiveAddress(ns walletdb.ReadBucket, fn func(addr diviutil.Address) error) error {
 	m.mtx.RLock()
 	defer m.mtx.RUnlock()
 

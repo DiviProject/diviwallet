@@ -1,4 +1,4 @@
-// Copyright (c) 2014 The btcsuite developers
+// Copyright (c) 2014 The DiviProject developers
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
@@ -7,7 +7,7 @@ package bdb
 import (
 	"fmt"
 
-	"github.com/btcsuite/btcwallet/walletdb"
+	"github.com/DiviProject/diviwallet/walletdb"
 )
 
 const (

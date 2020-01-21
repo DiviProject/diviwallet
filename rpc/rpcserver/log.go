@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 The btcsuite developers
+// Copyright (c) 2015-2016 The DiviProject developers
 //
 // Permission to use, copy, modify, and distribute this software for any
 // purpose with or without fee is hereby granted, provided that the above
@@ -20,21 +20,21 @@ import (
 
 	"google.golang.org/grpc/grpclog"
 
-	"github.com/btcsuite/btclog"
+	"github.com/DiviProject/divilog"
 )
 
 // UseLogger sets the logger to use for the gRPC server.
-func UseLogger(l btclog.Logger) {
+func UseLogger(l divilog.Logger) {
 	grpclog.SetLogger(logger{l})
 }
 
-// logger uses a btclog.Logger to implement the grpclog.Logger interface.
+// logger uses a divilog.Logger to implement the grpclog.Logger interface.
 type logger struct {
-	btclog.Logger
+	divilog.Logger
 }
 
 // stripGrpcPrefix removes the package prefix for all logs made to the grpc
-// logger, since these are already included as the btclog subsystem name.
+// logger, since these are already included as the divilog subsystem name.
 func stripGrpcPrefix(logstr string) string {
 	return strings.TrimPrefix(logstr, "grpc: ")
 }

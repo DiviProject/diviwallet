@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 The btcsuite developers
+// Copyright (c) 2015-2016 The DiviProject developers
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
@@ -12,8 +12,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/btcsuite/btcwallet/internal/legacy/keystore"
+	"github.com/DiviProject/diviutil/hdkeychain"
+	"github.com/DiviProject/diviwallet/internal/legacy/keystore"
 	"golang.org/x/crypto/ssh/terminal"
 )
 

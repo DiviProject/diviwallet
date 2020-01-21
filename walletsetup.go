@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2015 The btcsuite developers
+// Copyright (c) 2014-2015 The DiviProject developers
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
@@ -11,16 +11,16 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/btcsuite/btcd/btcec"
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcutil"
-	"github.com/btcsuite/btcwallet/internal/legacy/keystore"
-	"github.com/btcsuite/btcwallet/internal/prompt"
-	"github.com/btcsuite/btcwallet/waddrmgr"
-	"github.com/btcsuite/btcwallet/wallet"
-	"github.com/btcsuite/btcwallet/walletdb"
-	_ "github.com/btcsuite/btcwallet/walletdb/bdb"
+	"github.com/DiviProject/divid/diviec"
+	"github.com/DiviProject/divid/chaincfg"
+	"github.com/DiviProject/divid/wire"
+	"github.com/DiviProject/diviutil"
+	"github.com/DiviProject/diviwallet/internal/legacy/keystore"
+	"github.com/DiviProject/diviwallet/internal/prompt"
+	"github.com/DiviProject/diviwallet/waddrmgr"
+	"github.com/DiviProject/diviwallet/wallet"
+	"github.com/DiviProject/diviwallet/walletdb"
+	_ "github.com/DiviProject/diviwallet/walletdb/bdb"
 )
 
 // networkDir returns the directory name of a network directory to hold wallet
@@ -60,7 +60,7 @@ func convertLegacyKeystore(legacyKeyStore *keystore.Store, w *wallet.Wallet) err
 				continue
 			}
 
-			wif, err := btcutil.NewWIF((*btcec.PrivateKey)(privKey),
+			wif, err := diviutil.NewWIF((*diviec.PrivateKey)(privKey),
 				netParams, addr.Compressed())
 			if err != nil {
 				fmt.Printf("WARN: Failed to create wallet "+

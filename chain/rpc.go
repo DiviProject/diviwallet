@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2016 The btcsuite developers
+// Copyright (c) 2013-2016 The DiviProject developers
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
@@ -9,16 +9,16 @@ import (
 	"sync"
 	"time"
 
-	"github.com/btcsuite/btcd/btcjson"
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/rpcclient"
-	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcutil"
-	"github.com/btcsuite/btcutil/gcs"
-	"github.com/btcsuite/btcutil/gcs/builder"
-	"github.com/btcsuite/btcwallet/waddrmgr"
-	"github.com/btcsuite/btcwallet/wtxmgr"
+	"github.com/DiviProject/divid/divijson"
+	"github.com/DiviProject/divid/chaincfg"
+	"github.com/DiviProject/divid/chaincfg/chainhash"
+	"github.com/DiviProject/divid/rpcclient"
+	"github.com/DiviProject/divid/wire"
+	"github.com/DiviProject/diviutil"
+	"github.com/DiviProject/diviutil/gcs"
+	"github.com/DiviProject/diviutil/gcs/builder"
+	"github.com/DiviProject/diviwallet/waddrmgr"
+	"github.com/DiviProject/diviwallet/wtxmgr"
 )
 
 // RPCClient represents a persistent client connection to a bitcoin RPC server
@@ -89,7 +89,7 @@ func NewRPCClient(chainParams *chaincfg.Params, connect, user, pass string, cert
 
 // BackEnd returns the name of the driver.
 func (c *RPCClient) BackEnd() string {
-	return "btcd"
+	return "divid"
 }
 
 // Start attempts to establish a client connection with the remote server.
@@ -158,8 +158,8 @@ func (c *RPCClient) IsCurrent() bool {
 // allows us to map an oupoint to the address in the chain that it pays to.
 // This is useful when using BIP 158 filters as they include the prev pkScript
 // rather than the full outpoint.
-func (c *RPCClient) Rescan(startHash *chainhash.Hash, addrs []btcutil.Address,
-	outPoints map[wire.OutPoint]btcutil.Address) error {
+func (c *RPCClient) Rescan(startHash *chainhash.Hash, addrs []diviutil.Address,
+	outPoints map[wire.OutPoint]diviutil.Address) error {
 
 	flatOutpoints := make([]*wire.OutPoint, 0, len(outPoints))
 	for ops := range outPoints {
@@ -282,10 +282,10 @@ func (c *RPCClient) FilterBlocks(
 	return nil, nil
 }
 
-// parseBlock parses a btcws definition of the block a tx is mined it to the
+// parseBlock parses a diviws definition of the block a tx is mined it to the
 // Block structure of the wtxmgr package, and the block index.  This is done
 // here since rpcclient doesn't parse this nicely for us.
-func parseBlock(block *btcjson.BlockDetails) (*wtxmgr.BlockMeta, error) {
+func parseBlock(block *divijson.BlockDetails) (*wtxmgr.BlockMeta, error) {
 	if block == nil {
 		return nil, nil
 	}
@@ -336,7 +336,7 @@ func (c *RPCClient) onBlockDisconnected(hash *chainhash.Hash, height int32, time
 	}
 }
 
-func (c *RPCClient) onRecvTx(tx *btcutil.Tx, block *btcjson.BlockDetails) {
+func (c *RPCClient) onRecvTx(tx *diviutil.Tx, block *divijson.BlockDetails) {
 	blk, err := parseBlock(block)
 	if err != nil {
 		// Log and drop improper notification.
@@ -356,7 +356,7 @@ func (c *RPCClient) onRecvTx(tx *btcutil.Tx, block *btcjson.BlockDetails) {
 	}
 }
 
-func (c *RPCClient) onRedeemingTx(tx *btcutil.Tx, block *btcjson.BlockDetails) {
+func (c *RPCClient) onRedeemingTx(tx *diviutil.Tx, block *divijson.BlockDetails) {
 	// Handled exactly like recvtx notifications.
 	c.onRecvTx(tx, block)
 }
