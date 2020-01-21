@@ -5,20 +5,18 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
-	"path/filepath"
 	"runtime"
 	"sync"
 
 	"github.com/DiviProject/diviwallet/chain"
 	"github.com/DiviProject/diviwallet/rpc/legacyrpc"
 	"github.com/DiviProject/diviwallet/wallet"
-	"github.com/DiviProject/diviwallet/walletdb"
-	"github.com/lightninglabs/neutrino"
 )
 
 var (
@@ -155,35 +153,7 @@ func rpcClientConnectLoop(legacyRPCServer *legacyrpc.Server, loader *wallet.Load
 		)
 
 		if cfg.UseSPV {
-			var (
-				chainService *neutrino.ChainService
-				spvdb        walletdb.DB
-			)
-			netDir := networkDir(cfg.AppDataDir.Value, activeNet.Params)
-			spvdb, err = walletdb.Create("bdb",
-				filepath.Join(netDir, "neutrino.db"))
-			defer spvdb.Close()
-			if err != nil {
-				log.Errorf("Unable to create Neutrino DB: %s", err)
-				continue
-			}
-			chainService, err = neutrino.NewChainService(
-				neutrino.Config{
-					DataDir:      netDir,
-					Database:     spvdb,
-					ChainParams:  *activeNet.Params,
-					ConnectPeers: cfg.ConnectPeers,
-					AddPeers:     cfg.AddPeers,
-				})
-			if err != nil {
-				log.Errorf("Couldn't create Neutrino ChainService: %s", err)
-				continue
-			}
-			chainClient = chain.NewNeutrinoClient(activeNet.Params, chainService)
-			err = chainClient.Start()
-			if err != nil {
-				log.Errorf("Couldn't start Neutrino client: %s", err)
-			}
+			fmt.Println("Neutrino currently unsupported")
 		} else {
 			chainClient, err = startChainRPC(certs)
 			if err != nil {

@@ -18,7 +18,6 @@ import (
 	"github.com/DiviProject/diviwallet/wallet"
 	"github.com/DiviProject/diviwallet/wtxmgr"
 	"github.com/jrick/logrotate/rotator"
-	"github.com/lightninglabs/neutrino"
 )
 
 // logWriter implements an io.Writer that outputs to both standard output and
@@ -59,7 +58,7 @@ var (
 	chainLog     = backendLog.Logger("CHNS")
 	grpcLog      = backendLog.Logger("GRPC")
 	legacyRPCLog = backendLog.Logger("RPCS")
-	divinLog      = backendLog.Logger("DIVIN")
+	divinLog     = backendLog.Logger("DIVIN")
 )
 
 // Initialize package-global logger variables.
@@ -70,18 +69,17 @@ func init() {
 	rpcclient.UseLogger(chainLog)
 	rpcserver.UseLogger(grpcLog)
 	legacyrpc.UseLogger(legacyRPCLog)
-	neutrino.UseLogger(divinLog)
 }
 
 // subsystemLoggers maps each subsystem identifier to its associated logger.
 var subsystemLoggers = map[string]divilog.Logger{
 	"DIVIW": log,
 	"WLLT": walletLog,
-	"TMGR": txmgrLog,
-	"CHNS": chainLog,
-	"GRPC": grpcLog,
-	"RPCS": legacyRPCLog,
-	"DIVIN": divinLog,
+	"TMGR":  txmgrLog,
+	"CHNS":  chainLog,
+	"GRPC":  grpcLog,
+	"RPCS":  legacyRPCLog,
+	"DIVIN" : divinLog,
 }
 
 // initLogRotator initializes the logging rotater to write logs to logFile and

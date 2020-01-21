@@ -16,10 +16,10 @@ import (
 	"time"
 
 	"github.com/DiviProject/divid/blockchain"
-	"github.com/DiviProject/divid/diviec"
-	"github.com/DiviProject/divid/divijson"
+	"github.com/DiviProject/divid/btcjson"
 	"github.com/DiviProject/divid/chaincfg"
 	"github.com/DiviProject/divid/chaincfg/chainhash"
+	"github.com/DiviProject/divid/diviec"
 	"github.com/DiviProject/divid/rpcclient"
 	"github.com/DiviProject/divid/txscript"
 	"github.com/DiviProject/divid/wire"
@@ -176,8 +176,6 @@ func (w *Wallet) SynchronizeRPC(chainClient chain.Interface) {
 	// If the chain client is a NeutrinoClient instance, set a birthday so
 	// we don't download all the filters as we go.
 	switch cc := chainClient.(type) {
-	case *chain.NeutrinoClient:
-		cc.SetStartTime(w.Manager.Birthday())
 	case *chain.BitcoindClient:
 		cc.SetBirthday(w.Manager.Birthday())
 	}
@@ -1837,7 +1835,7 @@ func RecvCategory(details *wtxmgr.TxDetails, syncHeight int32, net *chaincfg.Par
 //
 // TODO: This should be moved to the legacyrpc package.
 func listTransactions(tx walletdb.ReadTx, details *wtxmgr.TxDetails, addrMgr *waddrmgr.Manager,
-	syncHeight int32, net *chaincfg.Params) []divijson.ListTransactionsResult {
+	syncHeight int32, net *chaincfg.Params) []btcjson.ListTransactionsResult {
 
 	addrmgrNs := tx.ReadBucket(waddrmgrNamespaceKey)
 
@@ -1852,7 +1850,7 @@ func listTransactions(tx walletdb.ReadTx, details *wtxmgr.TxDetails, addrMgr *wa
 		confirmations = int64(confirms(details.Block.Height, syncHeight))
 	}
 
-	results := []divijson.ListTransactionsResult{}
+	results := []btcjson.ListTransactionsResult{}
 	txHashStr := details.Hash.String()
 	received := details.Received.Unix()
 	generated := blockchain.IsCoinBaseTx(&details.MsgTx)
@@ -1912,7 +1910,7 @@ outputs:
 		}
 
 		amountF64 := diviutil.Amount(output.Value).ToDIVI()
-		result := divijson.ListTransactionsResult{
+		result := btcjson.ListTransactionsResult{
 			// Fields left zeroed:
 			//   InvolvesWatchOnly
 			//   BlockIndex
@@ -1964,8 +1962,8 @@ outputs:
 // ListSinceBlock returns a slice of objects with details about transactions
 // since the given block. If the block is -1 then all transactions are included.
 // This is intended to be used for listsinceblock RPC replies.
-func (w *Wallet) ListSinceBlock(start, end, syncHeight int32) ([]divijson.ListTransactionsResult, error) {
-	txList := []divijson.ListTransactionsResult{}
+func (w *Wallet) ListSinceBlock(start, end, syncHeight int32) ([]btcjson.ListTransactionsResult, error) {
+	txList := []btcjson.ListTransactionsResult{}
 	err := walletdb.View(w.db, func(tx walletdb.ReadTx) error {
 		txmgrNs := tx.ReadBucket(wtxmgrNamespaceKey)
 
@@ -1986,8 +1984,8 @@ func (w *Wallet) ListSinceBlock(start, end, syncHeight int32) ([]divijson.ListTr
 // ListTransactions returns a slice of objects with details about a recorded
 // transaction.  This is intended to be used for listtransactions RPC
 // replies.
-func (w *Wallet) ListTransactions(from, count int) ([]divijson.ListTransactionsResult, error) {
-	txList := []divijson.ListTransactionsResult{}
+func (w *Wallet) ListTransactions(from, count int) ([]btcjson.ListTransactionsResult, error) {
+	txList := []btcjson.ListTransactionsResult{}
 
 	err := walletdb.View(w.db, func(tx walletdb.ReadTx) error {
 		txmgrNs := tx.ReadBucket(wtxmgrNamespaceKey)
@@ -2039,8 +2037,8 @@ func (w *Wallet) ListTransactions(from, count int) ([]divijson.ListTransactionsR
 // ListAddressTransactions returns a slice of objects with details about
 // recorded transactions to or from any address belonging to a set.  This is
 // intended to be used for listaddresstransactions RPC replies.
-func (w *Wallet) ListAddressTransactions(pkHashes map[string]struct{}) ([]divijson.ListTransactionsResult, error) {
-	txList := []divijson.ListTransactionsResult{}
+func (w *Wallet) ListAddressTransactions(pkHashes map[string]struct{}) ([]btcjson.ListTransactionsResult, error) {
+	txList := []btcjson.ListTransactionsResult{}
 	err := walletdb.View(w.db, func(tx walletdb.ReadTx) error {
 		txmgrNs := tx.ReadBucket(wtxmgrNamespaceKey)
 
@@ -2088,8 +2086,8 @@ func (w *Wallet) ListAddressTransactions(pkHashes map[string]struct{}) ([]divijs
 // ListAllTransactions returns a slice of objects with details about a recorded
 // transaction.  This is intended to be used for listalltransactions RPC
 // replies.
-func (w *Wallet) ListAllTransactions() ([]divijson.ListTransactionsResult, error) {
-	txList := []divijson.ListTransactionsResult{}
+func (w *Wallet) ListAllTransactions() ([]btcjson.ListTransactionsResult, error) {
+	txList := []btcjson.ListTransactionsResult{}
 	err := walletdb.View(w.db, func(tx walletdb.ReadTx) error {
 		txmgrNs := tx.ReadBucket(wtxmgrNamespaceKey)
 
@@ -2178,12 +2176,6 @@ func (w *Wallet) GetTransactions(startBlock, endBlock *BlockIdentifier, cancel <
 				if err != nil {
 					return nil, err
 				}
-			case *chain.NeutrinoClient:
-				var err error
-				start, err = client.GetBlockHeight(startBlock.hash)
-				if err != nil {
-					return nil, err
-				}
 			}
 		}
 	}
@@ -2197,12 +2189,6 @@ func (w *Wallet) GetTransactions(startBlock, endBlock *BlockIdentifier, cancel <
 			switch client := chainClient.(type) {
 			case *chain.RPCClient:
 				endResp = client.GetBlockVerboseTxAsync(endBlock.hash)
-			case *chain.NeutrinoClient:
-				var err error
-				end, err = client.GetBlockHeight(endBlock.hash)
-				if err != nil {
-					return nil, err
-				}
 			}
 		}
 	}
@@ -2470,9 +2456,9 @@ func (s creditSlice) Swap(i, j int) {
 // contained within it will be considered.  If we know nothing about a
 // transaction an empty array will be returned.
 func (w *Wallet) ListUnspent(minconf, maxconf int32,
-	addresses map[string]struct{}) ([]*divijson.ListUnspentResult, error) {
+	addresses map[string]struct{}) ([]*btcjson.ListUnspentResult, error) {
 
-	var results []*divijson.ListUnspentResult
+	var results []*btcjson.ListUnspentResult
 	err := walletdb.View(w.db, func(tx walletdb.ReadTx) error {
 		addrmgrNs := tx.ReadBucket(waddrmgrNamespaceKey)
 		txmgrNs := tx.ReadBucket(wtxmgrNamespaceKey)
@@ -2488,7 +2474,7 @@ func (w *Wallet) ListUnspent(minconf, maxconf int32,
 
 		defaultAccountName := "default"
 
-		results = make([]*divijson.ListUnspentResult, 0, len(unspent))
+		results = make([]*btcjson.ListUnspentResult, 0, len(unspent))
 		for i := range unspent {
 			output := unspent[i]
 
@@ -2581,7 +2567,7 @@ func (w *Wallet) ListUnspent(minconf, maxconf int32,
 				spendable = true
 			}
 
-			result := &divijson.ListUnspentResult{
+			result := &btcjson.ListUnspentResult{
 				TxID:          output.OutPoint.Hash.String(),
 				Vout:          output.OutPoint.Index,
 				Account:       acctName,
@@ -2798,11 +2784,11 @@ func (w *Wallet) ResetLockedOutpoints() {
 // LockedOutpoints returns a slice of currently locked outpoints.  This is
 // intended to be used by marshaling the result as a JSON array for
 // listlockunspent RPC results.
-func (w *Wallet) LockedOutpoints() []divijson.TransactionInput {
-	locked := make([]divijson.TransactionInput, len(w.lockedOutpoints))
+func (w *Wallet) LockedOutpoints() []btcjson.TransactionInput {
+	locked := make([]btcjson.TransactionInput, len(w.lockedOutpoints))
 	i := 0
 	for op := range w.lockedOutpoints {
-		locked[i] = divijson.TransactionInput{
+		locked[i] = btcjson.TransactionInput{
 			Txid: op.Hash.String(),
 			Vout: op.Index,
 		}
@@ -3418,8 +3404,8 @@ func (w *Wallet) publishTransaction(tx *wire.MsgTx) (*chainhash.Hash, error) {
 	// Determine if this was an RPC error thrown due to the transaction
 	// already confirming.
 	var rpcTxConfirmed bool
-	if rpcErr, ok := err.(*divijson.RPCError); ok {
-		rpcTxConfirmed = rpcErr.Code == divijson.ErrRPCTxAlreadyInChain
+	if rpcErr, ok := err.(*btcjson.RPCError); ok {
+		rpcTxConfirmed = rpcErr.Code == btcjson.ErrRPCTxAlreadyInChain
 	}
 
 	var (

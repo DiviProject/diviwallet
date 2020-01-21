@@ -7,31 +7,31 @@ package legacyrpc
 import (
 	"errors"
 
-	"github.com/DiviProject/divid/divijson"
+	"github.com/DiviProject/divid/btcjson"
 )
 
 // TODO(jrick): There are several error paths which 'replace' various errors
-// with a more appropiate error from the divijson package.  Create a map of
+// with a more appropiate error from the btcjson package.  Create a map of
 // these replacements so they can be handled once after an RPC handler has
 // returned and before the error is marshaled.
 
 // Error types to simplify the reporting of specific categories of
-// errors, and their *divijson.RPCError creation.
+// errors, and their *btcjson.RPCError creation.
 type (
 	// DeserializationError describes a failed deserializaion due to bad
-	// user input.  It corresponds to divijson.ErrRPCDeserialization.
+	// user input.  It corresponds to btcjson.ErrRPCDeserialization.
 	DeserializationError struct {
 		error
 	}
 
 	// InvalidParameterError describes an invalid parameter passed by
-	// the user.  It corresponds to divijson.ErrRPCInvalidParameter.
+	// the user.  It corresponds to btcjson.ErrRPCInvalidParameter.
 	InvalidParameterError struct {
 		error
 	}
 
 	// ParseError describes a failed parse due to bad user input.  It
-	// corresponds to divijson.ErrRPCParse.
+	// corresponds to btcjson.ErrRPCParse.
 	ParseError struct {
 		error
 	}
@@ -47,38 +47,38 @@ var (
 		errors.New("minconf must be positive"),
 	}
 
-	ErrAddressNotInWallet = divijson.RPCError{
-		Code:    divijson.ErrRPCWallet,
+	ErrAddressNotInWallet = btcjson.RPCError{
+		Code:    btcjson.ErrRPCWallet,
 		Message: "address not found in wallet",
 	}
 
-	ErrAccountNameNotFound = divijson.RPCError{
-		Code:    divijson.ErrRPCWalletInvalidAccountName,
+	ErrAccountNameNotFound = btcjson.RPCError{
+		Code:    btcjson.ErrRPCWalletInvalidAccountName,
 		Message: "account name not found",
 	}
 
-	ErrUnloadedWallet = divijson.RPCError{
-		Code:    divijson.ErrRPCWallet,
+	ErrUnloadedWallet = btcjson.RPCError{
+		Code:    btcjson.ErrRPCWallet,
 		Message: "Request requires a wallet but wallet has not loaded yet",
 	}
 
-	ErrWalletUnlockNeeded = divijson.RPCError{
-		Code:    divijson.ErrRPCWalletUnlockNeeded,
+	ErrWalletUnlockNeeded = btcjson.RPCError{
+		Code:    btcjson.ErrRPCWalletUnlockNeeded,
 		Message: "Enter the wallet passphrase with walletpassphrase first",
 	}
 
-	ErrNotImportedAccount = divijson.RPCError{
-		Code:    divijson.ErrRPCWallet,
+	ErrNotImportedAccount = btcjson.RPCError{
+		Code:    btcjson.ErrRPCWallet,
 		Message: "imported addresses must belong to the imported account",
 	}
 
-	ErrNoTransactionInfo = divijson.RPCError{
-		Code:    divijson.ErrRPCNoTxInfo,
+	ErrNoTransactionInfo = btcjson.RPCError{
+		Code:    btcjson.ErrRPCNoTxInfo,
 		Message: "No information for transaction",
 	}
 
-	ErrReservedAccountName = divijson.RPCError{
-		Code:    divijson.ErrRPCInvalidParameter,
+	ErrReservedAccountName = btcjson.RPCError{
+		Code:    btcjson.ErrRPCInvalidParameter,
 		Message: "Account name is reserved by RPC server",
 	}
 )

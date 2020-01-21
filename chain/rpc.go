@@ -9,10 +9,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/DiviProject/divid/divijson"
+	"github.com/DiviProject/divid/btcjson"
 	"github.com/DiviProject/divid/chaincfg"
 	"github.com/DiviProject/divid/chaincfg/chainhash"
 	"github.com/DiviProject/divid/rpcclient"
+	"github.com/DiviProject/divid/txscript"
 	"github.com/DiviProject/divid/wire"
 	"github.com/DiviProject/diviutil"
 	"github.com/DiviProject/diviutil/gcs"
@@ -285,7 +286,7 @@ func (c *RPCClient) FilterBlocks(
 // parseBlock parses a diviws definition of the block a tx is mined it to the
 // Block structure of the wtxmgr package, and the block index.  This is done
 // here since rpcclient doesn't parse this nicely for us.
-func parseBlock(block *divijson.BlockDetails) (*wtxmgr.BlockMeta, error) {
+func parseBlock(block *btcjson.BlockDetails) (*wtxmgr.BlockMeta, error) {
 	if block == nil {
 		return nil, nil
 	}
@@ -336,7 +337,7 @@ func (c *RPCClient) onBlockDisconnected(hash *chainhash.Hash, height int32, time
 	}
 }
 
-func (c *RPCClient) onRecvTx(tx *diviutil.Tx, block *divijson.BlockDetails) {
+func (c *RPCClient) onRecvTx(tx *diviutil.Tx, block *btcjson.BlockDetails) {
 	blk, err := parseBlock(block)
 	if err != nil {
 		// Log and drop improper notification.
@@ -356,7 +357,7 @@ func (c *RPCClient) onRecvTx(tx *diviutil.Tx, block *divijson.BlockDetails) {
 	}
 }
 
-func (c *RPCClient) onRedeemingTx(tx *diviutil.Tx, block *divijson.BlockDetails) {
+func (c *RPCClient) onRedeemingTx(tx *diviutil.Tx, block *btcjson.BlockDetails) {
 	// Handled exactly like recvtx notifications.
 	c.onRecvTx(tx, block)
 }
@@ -458,4 +459,48 @@ func (c *RPCClient) POSTClient() (*rpcclient.Client, error) {
 	configCopy := *c.connConfig
 	configCopy.HTTPPostMode = true
 	return rpcclient.New(&configCopy, nil)
+}
+
+// buildFilterBlocksWatchList constructs a watchlist used for matching against a
+// cfilter from a FilterBlocksRequest. The watchlist will be populated with all
+// external addresses, internal addresses, and outpoints contained in the
+// request.
+func buildFilterBlocksWatchList(req *FilterBlocksRequest) ([][]byte, error) {
+	// Construct a watch list containing the script addresses of all
+	// internal and external addresses that were requested, in addition to
+	// the set of outpoints currently being watched.
+	watchListSize := len(req.ExternalAddrs) +
+		len(req.InternalAddrs) +
+		len(req.WatchedOutPoints)
+
+	watchList := make([][]byte, 0, watchListSize)
+
+	for _, addr := range req.ExternalAddrs {
+		p2shAddr, err := txscript.PayToAddrScript(addr)
+		if err != nil {
+			return nil, err
+		}
+
+		watchList = append(watchList, p2shAddr)
+	}
+
+	for _, addr := range req.InternalAddrs {
+		p2shAddr, err := txscript.PayToAddrScript(addr)
+		if err != nil {
+			return nil, err
+		}
+
+		watchList = append(watchList, p2shAddr)
+	}
+
+	for _, addr := range req.WatchedOutPoints {
+		addr, err := txscript.PayToAddrScript(addr)
+		if err != nil {
+			return nil, err
+		}
+
+		watchList = append(watchList, addr)
+	}
+
+	return watchList, nil
 }

@@ -12,7 +12,7 @@ import (
 
 	"golang.org/x/crypto/ssh/terminal"
 
-	"github.com/DiviProject/divid/divijson"
+	"github.com/DiviProject/divid/btcjson"
 	"github.com/DiviProject/divid/chaincfg/chainhash"
 	"github.com/DiviProject/divid/rpcclient"
 	"github.com/DiviProject/divid/txscript"
@@ -138,7 +138,7 @@ func (noInputValue) Error() string { return "no input value" }
 // output is consumed.  The InputSource does not return any previous output
 // scripts as they are not needed for creating the unsinged transaction and are
 // looked up again by the wallet during the call to signrawtransaction.
-func makeInputSource(outputs []divijson.ListUnspentResult) txauthor.InputSource {
+func makeInputSource(outputs []btcjson.ListUnspentResult) txauthor.InputSource {
 	var (
 		totalInputValue diviutil.Amount
 		inputs          = make([]*wire.TxIn, 0, len(outputs))
@@ -236,7 +236,7 @@ func sweep() error {
 	if err != nil {
 		return errContext(err, "failed to fetch unspent outputs")
 	}
-	sourceOutputs := make(map[string][]divijson.ListUnspentResult)
+	sourceOutputs := make(map[string][]btcjson.ListUnspentResult)
 	for _, unspentOutput := range unspentOutputs {
 		if !unspentOutput.Spendable {
 			continue
@@ -336,7 +336,7 @@ func saneOutputValue(amount diviutil.Amount) bool {
 	return amount >= 0 && amount <= diviutil.MaxSatoshi
 }
 
-func parseOutPoint(input *divijson.ListUnspentResult) (wire.OutPoint, error) {
+func parseOutPoint(input *btcjson.ListUnspentResult) (wire.OutPoint, error) {
 	txHash, err := chainhash.NewHashFromStr(input.TxID)
 	if err != nil {
 		return wire.OutPoint{}, err
